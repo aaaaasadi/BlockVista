@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Disk Space Management Visualizer | OS Educational Simulation</title>
+  <meta name="description" content="Interactive Operating Systems visualizer demonstrating Bit Map and Free Block Linked List disk space management techniques.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-badge">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+          <span class="badge-tag">OS SIMULATOR</span>
+        </div>
+        <div>
+          <h1 class="app-title">Free Disk Space Management Visualizer</h1>
+          <p class="app-subtitle">Interactive simulation of <strong>Bitmap</strong> and <strong>Linked List</strong> free-space management techniques</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="header-actions">
+          <button id="btnRunDemo" class="btn btn-accent btn-glow" title="Watch an automated step-by-step demonstration">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>Run Viva Demo</span>
+          </button>
+          
+          <button id="btnQuickTour" class="btn btn-secondary" title="Learn how to use this prototype">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>Guide</span>
+          </button>
+
+          <button id="themeToggle" class="btn btn-icon-only" aria-label="Toggle Dark/Light Mode" title="Toggle theme">
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- DEMO BANNER (Visible during demo mode) -->
+    <div id="demoBanner" class="demo-banner hidden">
+      <div class="demo-badge">VIVA DEMO ACTIVE</div>
+      <div id="demoStepText" class="demo-step-text">Initializing demo sequence...</div>
+      <div class="demo-controls">
+        <span id="demoStepCounter" class="demo-step-counter">Step 1 of 5</span>
+        <button id="btnStopDemo" class="btn btn-sm btn-danger">Stop Demo</button>
+      </div>
+    </div>
+
+    <!-- MAIN DASHBOARD METRICS BAR (Real-Time OS Statistics) -->
+    <section class="stats-bar-card" aria-label="Real-time Disk Statistics">
+      <div class="stat-item">
+        <div class="stat-icon-wrapper blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12H2M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Total Disk Capacity</span>
+          <div class="stat-value-group">
+            <span id="statTotalBlocks" class="stat-value">64</span>
+            <span class="stat-unit">Blocks (<span id="statBlockSize">4 KB</span>/blk)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-item">
+        <div class="stat-icon-wrapper green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Free Blocks</span>
+          <div class="stat-value-group">
+            <span id="statFreeBlocks" class="stat-value text-free">0</span>
+            <span id="statFreePct" class="stat-unit text-free-light">(0%)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-item">
+        <div class="stat-icon-wrapper red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Allocated Blocks</span>
+          <div class="stat-value-group">
+            <span id="statAllocBlocks" class="stat-value text-alloc">0</span>
+            <span id="statAllocPct" class="stat-unit text-alloc-light">(0%)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-item progress-stat">
+        <div class="stat-header-flex">
+          <span class="stat-label">Disk Space Distribution</span>
+          <span class="stat-sublabel"><span id="pctFreeLabel">0%</span> Free</span>
+        </div>
+        <div class="distribution-bar" title="Disk Space Allocation Bar">
+          <div id="distAllocatedBar" class="bar-fill-alloc" style="width: 50%;"></div>
+          <div id="distFreeBar" class="bar-fill-free" style="width: 50%;"></div>
+        </div>
+      </div>
+
+      <div class="stat-divider"></div>
+
+      <div class="stat-item metadata-stat">
+        <div class="meta-tag" title="Storage overhead consumed in RAM">
+          <span class="meta-title">Bitmap Overhead:</span>
+          <span id="statBitmapOverhead" class="meta-val font-mono">8 Bytes</span>
+        </div>
+        <div class="meta-tag" title="Pointer memory overhead inside free blocks">
+          <span class="meta-title">LL Pointers:</span>
+          <span id="statLLOverhead" class="meta-val font-mono">0 Bytes</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN TWO-COLUMN DASHBOARD LAYOUT -->
+    <div class="dashboard-grid">
+      <!-- LEFT COLUMN: CONTROLS & DISK GRID -->
+      <div class="dashboard-left">
+        <!-- 1. DISK CONFIGURATION CARD -->
+        <section class="card config-card" id="configSection">
+          <div class="card-header">
+            <div class="card-title-group">
+              <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <div>
+                <h2 class="card-title">Disk Configuration Panel</h2>
+                <span class="card-desc">Define disk geometry and initial block distribution</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="config-row">
+              <div class="form-group">
+                <label for="blockCountSelect" class="form-label">
+                  Number of Disk Blocks
+                  <span class="tooltip-trigger" title="Total addressable storage blocks on this simulated drive">ⓘ</span>
+                </label>
+                <div class="select-wrapper">
+                  <select id="blockCountSelect" class="form-select">
+                    <option value="32">32 Blocks (Quick Demo)</option>
+                    <option value="64" selected>64 Blocks (Standard)</option>
+                    <option value="100">100 Blocks (Decimal)</option>
+                    <option value="128">128 Blocks (High Capacity)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="initModeSelect" class="form-label">
+                  Initial Allocation Mode
+                  <span class="tooltip-trigger" title="Preset pattern for free and occupied disk space">ⓘ</span>
+                </label>
+                <div class="select-wrapper">
+                  <select id="initModeSelect" class="form-select">
+                    <option value="random" selected>Random Distribution (~50%)</option>
+                    <option value="mostly_free">Mostly Free (85% Free)</option>
+                    <option value="mostly_allocated">Mostly Allocated (85% In-Use)</option>
+                    <option value="alternating">Alternating Checkerboard</option>
+                    <option value="all_free">Completely Clean (100% Free)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="button-group">
+              <button id="btnInitDisk" class="btn btn-primary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                </svg>
+                <span>Initialize Disk</span>
+              </button>
+
+              <button id="btnResetSimulation" class="btn btn-secondary">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                  <path d="M3 3v5h5"></path>
+                </svg>
+                <span>Reset Simulation</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. ALLOCATION & DEALLOCATION OPERATIONS CARDS -->
+        <div class="ops-grid">
+          <!-- ALLOCATE BLOCKS -->
+          <section class="card op-card allocate-card" id="allocSection">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="badge-icon badge-alloc">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </div>
+                <div>
+                  <h3 class="card-title">Allocate Blocks</h3>
+                  <span class="card-desc">Request storage for a new file</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="allocCountInput" class="form-label">Number of blocks to allocate:</label>
+                <div class="input-with-action">
+                  <input type="number" id="allocCountInput" class="form-input font-mono" min="1" max="128" value="3" placeholder="e.g. 3">
+                  <button id="btnAllocate" class="btn btn-success">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Allocate</span>
+                  </button>
+                </div>
+              </div>
+              <div class="quick-chips">
+                <span class="chip-label">Quick:</span>
+                <button class="chip-btn" data-val="1">+1</button>
+                <button class="chip-btn" data-val="3">+3</button>
+                <button class="chip-btn" data-val="5">+5</button>
+                <button class="chip-btn" data-val="8">+8</button>
+              </div>
+              <div id="allocFeedback" class="feedback-msg hidden"></div>
+            </div>
+          </section>
+
+          <!-- DEALLOCATE / FREE BLOCKS -->
+          <section class="card op-card deallocate-card" id="freeSection">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="badge-icon badge-free">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </div>
+                <div>
+                  <h3 class="card-title">Free Blocks</h3>
+                  <span class="card-desc">Deallocate & return space to OS</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="freeBlocksInput" class="form-label">
+                  Select on grid OR enter block numbers:
+                </label>
+                <div class="input-with-action">
+                  <input type="text" id="freeBlocksInput" class="form-input font-mono" placeholder="e.g. 2, 4, 7-9">
+                  <button id="btnFreeBlocks" class="btn btn-warning">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                    <span>Free Blocks</span>
+                  </button>
+                </div>
+              </div>
+              <div class="free-helpers">
+                <span id="selectedCountBadge" class="selection-indicator">0 blocks selected on grid</span>
+                <button id="btnClearSelection" class="btn-text" type="button">Clear selection</button>
+              </div>
+              <div id="freeFeedback" class="feedback-msg hidden"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 3. DISK BLOCK VISUALIZATION GRID -->
+        <section class="card disk-card" id="diskSection">
+          <div class="card-header">
+            <div class="card-title-group">
+              <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <div>
+                <h2 class="card-title">Disk Block Visualization</h2>
+                <span class="card-desc">Physical layout of addressable storage clusters</span>
+              </div>
+            </div>
+
+            <!-- VISUALIZATION LEGEND -->
+            <div class="disk-legend" aria-label="Disk Block State Legend">
+              <div class="legend-item">
+                <span class="legend-swatch swatch-free"></span>
+                <span class="legend-text"><strong>FREE (0)</strong> Available</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-swatch swatch-alloc"></span>
+                <span class="legend-text"><strong>ALLOCATED (1)</strong> In Use</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-swatch swatch-selected"></span>
+                <span class="legend-text">Selected for Freeing</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="grid-toolbar">
+              <span class="grid-hint">
+                <svg class="hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                Tip: Click any allocated block to select/deselect it for deallocation. Hover for block metadata.
+              </span>
+              <div class="grid-quick-actions">
+                <button id="btnSelectAllAlloc" class="btn btn-xs btn-outline">Select All Allocated</button>
+              </div>
+            </div>
+
+            <div id="diskGrid" class="disk-grid" role="grid" aria-label="Disk block grid">
+              <!-- Dynamically populated blocks -->
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- RIGHT COLUMN: BITMAP, LINKED LIST & SIMULATION LOG -->
+      <div class="dashboard-right">
+        <!-- 4. BITMAP DATA STRUCTURE SECTION -->
+        <section class="card bitmap-card" id="bitmapSection">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="badge-icon badge-bitmap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+              </div>
+              <div>
+                <h2 class="card-title">Bitmap (Bit Vector) Structure</h2>
+                <span class="card-desc">1 bit per block: <strong class="text-alloc-light">1 = Allocated</strong> | <strong class="text-free-light">0 = Free</strong></span>
+              </div>
+            </div>
+
+            <div class="structure-controls">
+              <span class="overhead-badge font-mono" id="bitmapRamBadge">RAM: 8 Bytes</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="bitmap-explainer-banner">
+              <div class="explainer-col">
+                <span class="explainer-title">How OS Allocates:</span>
+                <span class="explainer-desc">Scans bits linearly (often word-at-a-time via CPU instructions) for the first <code>0</code> bit and flips it to <code>1</code>.</span>
+              </div>
+              <div class="explainer-col">
+                <span class="explainer-title">How OS Frees:</span>
+                <span class="explainer-desc">Calculates bit position: <code>WordIndex = Block / 32</code> and flips bit to <code>0</code> in <code>O(1)</code>.</span>
+              </div>
+            </div>
+
+            <div class="bitmap-scroll-container">
+              <div id="bitmapVisual" class="bitmap-grid-visual">
+                <!-- Dynamically rendered bitmap cells -->
+              </div>
+            </div>
+
+            <div class="bitmap-byte-summary" id="bitmapByteSummary">
+              <!-- Byte groupings (hex/binary) for OS realism -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. LINKED LIST OF FREE BLOCKS SECTION -->
+        <section class="card linkedlist-card" id="linkedListSection">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="badge-icon badge-ll">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="12" r="3"></circle><path d="M9 12h6"></path><path d="m12 9 3 3-3 3"></path></svg>
+              </div>
+              <div>
+                <h2 class="card-title">Free Block Linked List Structure</h2>
+                <span class="card-desc">Pointers embedded directly within unallocated disk blocks</span>
+              </div>
+            </div>
+
+            <div class="structure-controls">
+              <span class="overhead-badge font-mono" id="llNodeCountBadge">Free Nodes: 0</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="ll-explainer-banner">
+              <div class="explainer-col">
+                <span class="explainer-title">How OS Allocates:</span>
+                <span class="explainer-desc">Pops the block at <code>HEAD</code>: <code>HEAD = HEAD-&gt;next</code>. Zero RAM overhead outside the disk.</span>
+              </div>
+              <div class="explainer-col">
+                <span class="explainer-title">How OS Frees:</span>
+                <span class="explainer-desc">Prepends freed block to <code>HEAD</code>: <code>FreedBlock-&gt;next = HEAD; HEAD = FreedBlock</code> in <code>O(1)</code>.</span>
+              </div>
+            </div>
+
+            <div class="ll-scroll-container">
+              <div id="linkedListVisual" class="linked-list-chain">
+                <!-- Dynamically rendered Linked list nodes and arrows -->
+              </div>
+            </div>
+
+            <div class="ll-footer-info">
+              <div class="ll-pointer-legend">
+                <span class="ll-head-chip">HEAD Pointer in Superblock</span>
+                <span class="ll-arrow-legend">→ Next Disk Block Address</span>
+                <span class="ll-null-chip">NULL (End of Free List)</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 11. SIMULATION ACTIVITY LOG -->
+        <section class="card log-card" id="logSection">
+          <div class="card-header">
+            <div class="card-title-group">
+              <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+              </svg>
+              <div>
+                <h3 class="card-title">Simulation Activity Log</h3>
+                <span class="card-desc">Real-time trace of OS kernel free space operations</span>
+              </div>
+            </div>
+
+            <div class="log-actions">
+              <button id="btnClearLog" class="btn btn-xs btn-ghost" title="Clear console output">Clear</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div id="simulationLog" class="log-feed" role="log" aria-live="polite">
+              <!-- Dynamically populated event entries -->
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- 9 & 10. EDUCATIONAL CONCEPTS & COMPARISON MATRIX -->
+    <section class="card educational-card" id="educationalSection">
+      <div class="card-header tab-card-header">
+        <div class="card-title-group">
+          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+          <div>
+            <h2 class="card-title">Operating Systems Theory &amp; Viva Reference</h2>
+            <span class="card-desc">Core concepts, memory analysis, and comparative trade-offs</span>
+          </div>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div class="tab-nav" role="tablist">
+          <button class="tab-btn active" data-tab="tab-how-it-works" role="tab">How Does It Work?</button>
+          <button class="tab-btn" data-tab="tab-comparison" role="tab">Bitmap vs Linked List Comparison</button>
+          <button class="tab-btn" data-tab="tab-viva-qa" role="tab">Viva Questions &amp; Answers</button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <!-- TAB 1: HOW DOES IT WORK? -->
+        <div id="tab-how-it-works" class="tab-content active">
+          <div class="theory-grid">
+            <div class="theory-box bitmap-theory">
+              <div class="theory-header">
+                <span class="theory-tag tag-bitmap">METHOD 1</span>
+                <h3>Bit Map (Bit Vector)</h3>
+              </div>
+              <div class="theory-body">
+                <p>A <strong>Bitmap</strong> is an array of bits where each bit corresponds directly to one disk block on the storage volume:</p>
+                <ul class="theory-list">
+                  <li><strong><code>0</code> represents a FREE block</strong> ready for allocation.</li>
+                  <li><strong><code>1</code> represents an ALLOCATED block</strong> in use by a file or directory.</li>
+                  <li><strong>Scanning:</strong> The OS scans words sequentially to find <code>0</code> bits. Hardware instructions (e.g., bitwise NOT and find-first-set) make finding the first free block extremely fast.</li>
+                  <li><strong>Contiguous Allocation:</strong> It is trivial for the OS to locate <em>$k$ contiguous free blocks</em> by checking if $k$ consecutive bits are <code>0</code>.</li>
+                  <li><strong>Storage Overhead:</strong> Requires $\frac{D}{8}$ bytes of RAM/disk, where $D$ is total disk blocks. For a 1 TB disk with 4 KB blocks (256 million blocks), the bitmap takes only <strong>32 MB</strong>.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="theory-box ll-theory">
+              <div class="theory-header">
+                <span class="theory-tag tag-ll">METHOD 2</span>
+                <h3>Linked List of Free Blocks</h3>
+              </div>
+              <div class="theory-body">
+                <p>A <strong>Free Block Linked List</strong> links all unused disk blocks together into a chain:</p>
+                <ul class="theory-list">
+                  <li><strong>Pointers in Free Blocks:</strong> The OS stores the disk address of the next free block inside the free block itself! Because the block is empty, this consumes <strong>0 bytes of extra memory</strong>.</li>
+                  <li><strong>Superblock Pointer:</strong> The OS keeps only a single <code>HEAD</code> pointer in the disk superblock / main memory.</li>
+                  <li><strong>Allocation:</strong> Takes $O(1)$ to pop the block at <code>HEAD</code>: <code>new_head = HEAD->next</code>.</li>
+                  <li><strong>Deallocation:</strong> Takes $O(1)$ to push a freed block to <code>HEAD</code>: <code>freed_block->next = HEAD; HEAD = freed_block</code>.</li>
+                  <li><strong>Drawback:</strong> Finding contiguous blocks is inefficient because traversing the linked list requires reading disk blocks into memory (heavy disk I/O).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: COMPARISON TABLE -->
+        <div id="tab-comparison" class="tab-content">
+          <div class="table-responsive">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Feature / Dimension</th>
+                  <th>Bit Map (Bit Vector)</th>
+                  <th>Free Block Linked List</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Physical Representation</strong></td>
+                  <td>Continuous array of 1-bit flags (0 = Free, 1 = Allocated)</td>
+                  <td>Chain of pointers stored inside the payload of unused disk blocks</td>
+                </tr>
+                <tr>
+                  <td><strong>Memory / Storage Overhead</strong></td>
+                  <td>$D / 8$ bytes in RAM / Disk ($D$ = total blocks). Kept in memory for speed.</td>
+                  <td><strong>Zero extra overhead</strong> (pointers stored inside already free disk blocks; only 1 <code>HEAD</code> in RAM)</td>
+                </tr>
+                <tr>
+                  <td><strong>Finding a Single Free Block</strong></td>
+                  <td>Fast scan using CPU word-level bitwise operations ($O(N)$ worst case, fast with bit-indexing)</td>
+                  <td><strong>Instant $O(1)$</strong> — simply allocate block at <code>HEAD</code></td>
+                </tr>
+                <tr>
+                  <td><strong>Finding Contiguous Free Blocks</strong></td>
+                  <td><strong>Excellent</strong> — easily checks consecutive bits in RAM without disk reads</td>
+                  <td><strong>Poor</strong> — requires traversing the list from disk, causing multiple random disk seeks</td>
+                </tr>
+                <tr>
+                  <td><strong>Deallocation / Freeing a Block</strong></td>
+                  <td>$O(1)$ — calculate bit position and flip bit to <code>0</code></td>
+                  <td>$O(1)$ — prepend freed block to <code>HEAD</code> pointer</td>
+                </tr>
+                <tr>
+                  <td><strong>Disk I/O Overhead</strong></td>
+                  <td>Low (Bitmap is cached in RAM and flushed periodically)</td>
+                  <td>High during extensive multi-block searches; low for single-block pop</td>
+                </tr>
+                <tr>
+                  <td><strong>Primary Advantages</strong></td>
+                  <td>Simple, fast contiguous file allocation, CPU hardware accelerated</td>
+                  <td>Zero extra memory footprint; instant single block allocation &amp; release</td>
+                </tr>
+                <tr>
+                  <td><strong>Primary Disadvantages</strong></td>
+                  <td>Requires dedicated RAM overhead; scale with disk size</td>
+                  <td>Cannot support contiguous allocation efficiently; pointer corruption risk</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: VIVA QUESTIONS & ANSWERS -->
+        <div id="tab-viva-qa" class="tab-content">
+          <div class="viva-qa-accordion">
+            <details class="qa-item" open>
+              <summary class="qa-question">
+                <span>Q1: Why does a 0 represent a Free block and 1 represent an Allocated block in our Bitmap?</span>
+                <span class="qa-icon">+</span>
+              </summary>
+              <div class="qa-answer">
+                <p>Standard OS conventions (such as UNIX and Linux ext2/3/4) use <code>0</code> for free and <code>1</code> for allocated so that a bitwise AND or checking against <code>0xFF</code> can quickly detect fully allocated bytes without testing bit-by-bit. (Some older texts use 1 for free, 0 for allocated, but the 1=Allocated / 0=Free is the standard industry implementation).</p>
+              </div>
+            </details>
+
+            <details class="qa-item">
+              <summary class="qa-question">
+                <span>Q2: Where is the Linked List pointer stored? Does it waste disk space?</span>
+                <span class="qa-icon">+</span>
+              </summary>
+              <div class="qa-answer">
+                <p>No extra space is wasted! When a disk block is free, user data is not stored in it. Therefore, the OS writes the 4-byte or 8-byte disk address of the next free block inside the first bytes of the free block itself. Only the <code>HEAD</code> pointer needs to be maintained in the superblock in RAM.</p>
+              </div>
+            </details>
+
+            <details class="qa-item">
+              <summary class="qa-question">
+                <span>Q3: Why is Bitmap preferred over Linked List in modern operating systems?</span>
+                <span class="qa-icon">+</span>
+              </summary>
+              <div class="qa-answer">
+                <p>Modern OS filesystems (ext4, NTFS, APFS) prioritize contiguous allocation to minimize disk seek times and file fragmentation. Bitmaps allow the OS kernel to scan RAM for contiguous runs of zeros in microseconds. A linked list would require reading blocks from physical disk, incurring milliseconds of I/O latency.</p>
+              </div>
+            </details>
+
+            <details class="qa-item">
+              <summary class="qa-question">
+                <span>Q4: How much RAM is needed for a Bitmap on a 512 GB disk with 4 KB block size?</span>
+                <span class="qa-icon">+</span>
+              </summary>
+              <div class="qa-answer">
+                <p>Formula: $\text{Total Blocks} = \frac{512 \times 10^9}{4 \times 10^3} = 128{,}000{,}000 \text{ blocks}$.<br>
+                $\text{Bitmap size in bytes} = \frac{128{,}000{,}000}{8} = 16{,}000{,}000 \text{ bytes} \approx 16 \text{ MB}$.<br>
+                For a modern computer with 16 GB RAM, 16 MB is a negligible 0.1% memory overhead.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <p>Operating Systems Lab Prototype • Free Disk Space Management Simulation (Bitmap &amp; Free Block Linked List)</p>
+      <div class="footer-meta">
+        <span>Pure Client-Side Vanilla JS • Zero Dependencies • Designed for Academic Viva &amp; Lab Demonstrations</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- QUICK GUIDE / VIVA TOUR MODAL -->
+  <div id="guideModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>OS Visualizer — Viva Demonstration Guide</h3>
+        <button id="btnCloseGuide" class="btn-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-intro">Follow this recommended demonstration script during your lab exam or viva presentation:</p>
+        <ol class="guide-steps">
+          <li><strong>Step 1: Disk Setup</strong> — Select 32 or 64 blocks, pick an initial mode (e.g. Random), and click <em>Initialize Disk</em>.</li>
+          <li><strong>Step 2: Compare Dual Structures</strong> — Point out how the <strong>Bitmap</strong> reflects <code>0</code> for green blocks and <code>1</code> for red blocks. Show the <strong>Linked List</strong> connecting all <code>FREE</code> blocks starting from <code>HEAD</code> to <code>NULL</code>.</li>
+          <li><strong>Step 3: Test Allocation</strong> — Enter <code>3</code> in the Allocate panel and click <em>Allocate</em>. Observe:
+            <ul>
+              <li>The 3 free blocks turn red (Allocated).</li>
+              <li>The Bitmap bits at those indices flip from <code>0</code> to <code>1</code>.</li>
+              <li>The Linked List unlinks those blocks and points <code>HEAD</code> to the next free node.</li>
+            </ul>
+          </li>
+          <li><strong>Step 4: Test Deallocation</strong> — Click on 2 allocated blocks on the disk grid (or type numbers), then click <em>Free Blocks</em>.
+            <ul>
+              <li>The blocks turn green (Free).</li>
+              <li>The Bitmap bits flip from <code>1</code> to <code>0</code>.</li>
+              <li>The freed blocks are prepended to the <code>HEAD</code> of the Linked List.</li>
+            </ul>
+          </li>
+          <li><strong>Step 5: Automated Demo</strong> — Click the <strong>"Run Viva Demo"</strong> button at the top header for an automatic scripted walk-through!</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button id="btnStartDemoFromModal" class="btn btn-primary">Start Auto Demo</button>
+        <button id="btnCloseGuideBtn" class="btn btn-secondary">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLTIP ELEMENT -->
+  <div id="blockTooltip" class="block-tooltip hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
